@@ -1,0 +1,23 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignorowanie środowiska renv (poza plikiem lock)
+library/
+renv/library/
+renv/python/
+renv/staging/
+
+# --- WAŻNE: Ignorowanie Danych ---
+# Ignorujemy wszystko w folderze data, bo pobieramy to skryptem
+data/
+results/models/
+
+# Możemy chcieć zachować małe pliki przetworzone, ale surowe zawsze ignorujemy
+# Dla małych CSV, należy odkomentować linię niżej:
+# !data/processed/*.csv
+
+# Pliki tymczasowe
+*.rds
+*.RData
