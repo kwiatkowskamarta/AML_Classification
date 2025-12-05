@@ -1,4 +1,4 @@
-# Klasyfikacja podtypów białaczki AML z wykorzystaniem Explainable AI (XAI)
+# Klasyfikacja podtypów białaczki AML z wykorzystaniem uczenia maszyowego
 
 Projekt realizowany w ramach pracy magisterskiej. Celem jest opracowanie narzędzia bioinformatycznego do automatycznej klasyfikacji podtypów ostrej białaczki szpikowej (AML) na podstawie profilu ekspresji genów (RNA-seq).
 
