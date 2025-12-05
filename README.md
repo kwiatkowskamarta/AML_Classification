@@ -8,7 +8,7 @@ Projekt realizuje pełne przetwarzanie danych:
 1.  **Pobieranie Danych:** Automatyczna integracja z bazą NCI Genomic Data Commons (GDC) poprzez API, pobierająca dane projektu TCGA-LAML.
 2.  **Preprocessing:** Zaawansowane czyszczenie danych klinicznych, parowanie próbek i normalizacja ekspresji genów (Log2 CPM).
 3.  **Selekcja Biomarkerów:** Wykorzystanie algorytmu Boruta do redukcji wymiarowości z 26,000 genów do 150 kluczowych biomarkerów.
-4.  **Machine Learning:** Trening i walidacja modeli klasyfikacyjnych (Random Forest vs k-NN vs SVM) z wykorzystaniem powtarzanej walidacji krzyżowej (Repeated Cross-Validation).
+4.  **Machine Learning:** Trening i walidacja modeli klasyfikacyjnych (Random Forest vs k-NN vs SVM) z wykorzystaniem powtarzanej walidacji krzyżowej.
 5.  **Interaktywne GUI:** Aplikacja webowa (R Shiny) umożliwiająca lekarzom i badaczom wizualizację wyników oraz symulację diagnostyczną.
 
 ## Instrukcja Uruchomienia
@@ -34,7 +34,10 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
     ```
 4.  **Uruchom analizę (Opcjonalnie):**
     ```r
-    source("scripts/00_run_pipeline.R")
+    source("scripts/01_data_download.R")
+    source("scripts/02_preprocessing.R")
+    source("scripts/03_feature_selection.R")
+    source("scripts/04_modeling.R")
     ```
 5.  **Uruchom Aplikację GUI:**
     Aby zobaczyć gotowy dashboard z wynikami:
@@ -49,7 +52,7 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
     * `01_data_download.R` - Pobieranie danych z TCGA.
     * `02_preprocessing.R` - Czyszczenie i normalizacja.
     * `03_feature_selection.R` - Algorytm Boruta.
-    * `04_modeling.R` - Trening Random Forest/k-NN.
+    * `04_modeling.R` - Trening Random Forest/k-NN/SVM.
     * `05_GUI.R` - Kod aplikacji Shiny Dashboard.
 * `results/` - Zapisane modele (.RData) i wykresy.
 * `renv.lock` - Plik blokady wersji pakietów (dla reprodukowalności).
