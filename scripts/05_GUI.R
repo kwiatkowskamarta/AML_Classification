@@ -13,40 +13,45 @@ library(caret)
 library(randomForest)
 library(ggplot2)
 
-# --- 1. ŁADOWANIE DANYCH (WERSJA NAPRAWIONA) ---
-# Funkcja pomocnicza, która szuka plików w różnych lokalizacjach
+# --- 1. ŁADOWANIE DANYCH (WERSJA POPRAWIONA - FIX) ---
+
 load_data_smart <- function() {
-  # Ścieżki do sprawdzenia:
-  # 1. Jeśli uruchamiamy z głównego folderu (standardowo)
+  # Ścieżki do sprawdzenia
   path_root <- "results/models/"
-  # 2. Jeśli Shiny zmienił katalog na 'scripts/' (runApp)
   path_shiny <- "../results/models/"
   
-  # Sprawdzamy, która ścieżka działa
   if (file.exists(paste0(path_root, "Boruta_Results.RData"))) {
     base_path <- path_root
   } else if (file.exists(paste0(path_shiny, "Boruta_Results.RData"))) {
     base_path <- path_shiny
   } else {
-    return(FALSE)
+    return(NULL)
   }
   
   message(paste("Wczytuję dane z folderu:", base_path))
   
-  # Wczytujemy pliki
+  # Wczytujemy pliki do środowiska globalnego
   load(paste0(base_path, "Boruta_Results.RData"), envir = .GlobalEnv)
   load(paste0(base_path, "Final_Models.RData"), envir = .GlobalEnv)
-  return(TRUE)
+  return(base_path)
 }
 
-# Próba wczytania
-if(!load_data_smart()) {
-  stop("BŁĄD KRYTYCZNY: Nie znaleziono plików .RData ani w 'results/', ani w '../results/'. Sprawdź, czy uruchomiłeś skrypty 03 i 04!")
+# Próba wczytania danych
+base_path <- load_data_smart()
+if(is.null(base_path)) {
+  stop("BŁĄD: Nie znaleziono plików .RData. Uruchom skrypty 03 i 04.")
+}
+
+# --- FIX: Wyciągamy model RF z listy, jeśli nie istnieje jako osobna zmienna ---
+if (!exists("model_rf") && exists("models_list")) {
+  message("Naprawiam zmienną model_rf...")
+  model_rf <- models_list$Random_Forest
 }
 
 # Przygotowanie danych do wykresów
 df <- ml_data_final
-top_genes <- final_genes[1:20]
+all_genes <- sort(as.character(final_genes)) # Pełna lista genów
+top_genes <- as.character(final_genes[1:20])
 
 # --- 2. DEFINICJA UI ---
 
@@ -74,7 +79,6 @@ ui <- dashboardPage(
       # --- ZAKŁADKA 1: DASHBOARD ---
       tabItem(tabName = "dashboard",
               h2("System wspomagania diagnostyki białaczki AML"),
-              p("Projekt wykorzystuje algorytmy uczenia maszynowego do klasyfikacji podtypów białaczki na podstawie ekspresji genów."),
               br(),
               # Kafelki z liczbami (Value Boxes)
               fluidRow(
@@ -119,7 +123,8 @@ ui <- dashboardPage(
               fluidRow(
                 column(width = 4,
                        box(title = "Wybierz Gen", width = 12, status = "warning",
-                           selectInput("selected_gene", "Gen do analizy:", choices = top_genes),
+                           # Zostawiamy puste choices - wypełnimy je z serwera (server side)
+                           selectInput("selected_gene", "Gen do analizy:", choices = NULL),
                            helpText("Wybrano 20 najważniejszych genów wg algorytmu Boruta.")
                        )
                 ),
@@ -153,7 +158,15 @@ ui <- dashboardPage(
 
 # --- 3. DEFINICJA SERVERA (Logika Aplikacji) ---
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  # --- INIT: Aktualizacja listy genów po starcie aplikacji ---
+  # To naprawia problem "pustej listy" w zakładce Biomarkery
+  observe({
+    updateSelectInput(session, "selected_gene",
+                      choices = all_genes,
+                      selected = all_genes[1])
+  })
   
   # --- 1. Dashboard Logic ---
   output$box_patients <- renderValueBox({
@@ -193,11 +206,12 @@ server <- function(input, output) {
   
   # --- 3. Models Logic ---
   output$plot_model_compare <- renderPlotly({
-    # Wyciągamy dane z obiektu results
+    # Wyciągamy dane z obiektu results (bezpiecznie - sprawdzenie czy kNN istnieje)
+    knn_acc <- if("kNN" %in% names(models_list)) mean(results$values$`kNN~Accuracy`) else 0
+    
     res_df <- data.frame(
       Model = c("Random Forest", "k-NN"),
-      Accuracy = c(mean(results$values$`Random_Forest~Accuracy`), 
-                   mean(results$values$`kNN~Accuracy`))
+      Accuracy = c(mean(results$values$`Random_Forest~Accuracy`), knn_acc)
     )
     
     p <- ggplot(res_df, aes(x = Model, y = Accuracy, fill = Model)) +
@@ -223,11 +237,15 @@ server <- function(input, output) {
   output$plot_gene_boxplot <- renderPlotly({
     req(input$selected_gene)
     
-    # Tworzymy wykres dla wybranego genu
-    p <- ggplot(df, aes_string(x = "Target", y = input$selected_gene, fill = "Target")) +
-      geom_boxplot() +
+    # Bezpieczne pobieranie danych (zabezpieczenie przed kropkami w nazwach genów)
+    plot_data <- df[, c("Target", input$selected_gene)]
+    colnames(plot_data) <- c("Target", "Expression") # Ujednolicamy nazwę
+    
+    p <- ggplot(plot_data, aes(x = Target, y = Expression, fill = Target)) +
+      geom_boxplot(outlier.shape = NA) +
+      geom_jitter(width = 0.2, alpha = 0.3) +
       theme_minimal() +
-      labs(title = paste("Ekspresja genu:", input$selected_gene), y = "Poziom Log2 CPM") +
+      labs(title = paste("Gen:", input$selected_gene), y = "Poziom Log2 CPM") +
       theme(legend.position = "none")
     ggplotly(p)
   })
