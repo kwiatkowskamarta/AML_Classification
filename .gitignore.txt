@@ -21,3 +21,4 @@ results/models/
 # Pliki tymczasowe
 *.rds
 *.RData
+results/models/Final_Models.RData

@@ -20,5 +20,6 @@ MANIFEST.txt
 results/models/
 *.rds
 
-# --- Ignorowanie UUID folderów z GDC (dla bezpieczeństwa) ---
+# --- Ignorowanie UUID folderów z GDC ---
 [0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*/
+*.RData
