@@ -59,5 +59,7 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
 
 ## Autorka
 **Marta Kwiatkowska**
+
 Praca Magisterska
+
 Politechnika Warszawska
