@@ -32,7 +32,7 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
     ```r
     source("install_dependencies.R")
     ```
-4.  **Uruchom analizę (Opcjonalnie):**
+4.  **Uruchom analizę:**
     ```r
     source("scripts/01_data_download.R")
     source("scripts/02_preprocessing.R")
