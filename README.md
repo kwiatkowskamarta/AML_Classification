@@ -15,11 +15,6 @@ Projekt realizuje pełne przetwarzanie danych:
 
 Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
 
-### Wymagania
-* R (wersja 4.0+)
-* RStudio
-* Git
-
 ### Krok po kroku
 
 1.  **Sklonuj repozytorium:**
