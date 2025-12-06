@@ -24,7 +24,7 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
 
 1.  **Sklonuj repozytorium:**
     ```bash
-    git clone [https://github.com/twoj-nick/AML_Classification.git](https://github.com/twoj-nick/AML_Classification.git)
+    git clone [https://github.com/kwiatkowskamarta/AML_Classification.git](https://github.com/kwiatkowskamarta/AML_Classification.git)
     ```
 2.  **Otwórz projekt:** Kliknij plik `AML_Classification.Rproj`.
 3.  **Zainstaluj biblioteki:**
