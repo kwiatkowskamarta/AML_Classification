@@ -1,4 +1,4 @@
-# SKRYPT 05: Aplikacja GUI (Shiny Dashboard)
+# SKRYPT 05: Aplikacja GUI 
 # ------------------------------------------------------------------------------
 
 library(shiny)
