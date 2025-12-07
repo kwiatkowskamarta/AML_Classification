@@ -1,8 +1,5 @@
 # SKRYPT 05: Aplikacja GUI (Shiny Dashboard)
 # ------------------------------------------------------------------------------
-# Cel: Interaktywna wizualizacja wyników i symulator diagnostyczny.
-# Technologie: shiny, shinydashboard, plotly, DT
-# ------------------------------------------------------------------------------
 
 library(shiny)
 library(shinydashboard)
@@ -13,7 +10,7 @@ library(caret)
 library(randomForest)
 library(ggplot2)
 
-# --- 1. ŁADOWANIE DANYCH (WERSJA POPRAWIONA - FIX) ---
+# --- 1. ŁADOWANIE DANYCH  ---
 
 load_data_smart <- function() {
   # Ścieżki do sprawdzenia
@@ -29,22 +26,18 @@ load_data_smart <- function() {
   }
   
   message(paste("Wczytuję dane z folderu:", base_path))
-  
-  # Wczytujemy pliki do środowiska globalnego
+
   load(paste0(base_path, "Boruta_Results.RData"), envir = .GlobalEnv)
   load(paste0(base_path, "Final_Models.RData"), envir = .GlobalEnv)
   return(base_path)
 }
 
-# Próba wczytania danych
 base_path <- load_data_smart()
 if(is.null(base_path)) {
   stop("BŁĄD: Nie znaleziono plików .RData. Uruchom skrypty 03 i 04.")
 }
 
-# --- FIX: Wyciągamy model RF z listy, jeśli nie istnieje jako osobna zmienna ---
 if (!exists("model_rf") && exists("models_list")) {
-  message("Naprawiam zmienną model_rf...")
   model_rf <- models_list$Random_Forest
 }
 
@@ -54,7 +47,6 @@ all_genes <- sort(as.character(final_genes)) # Pełna lista genów
 top_genes <- as.character(final_genes[1:20])
 
 # --- 2. DEFINICJA UI ---
-
 ui <- dashboardPage(
   skin = "blue",
   
@@ -72,7 +64,6 @@ ui <- dashboardPage(
     )
   ),
   
-  # C. Główna część (Treść zakładek)
   dashboardBody(
     tabItems(
       
@@ -80,7 +71,6 @@ ui <- dashboardPage(
       tabItem(tabName = "dashboard",
               h2("System wspomagania diagnostyki białaczki AML"),
               br(),
-              # Kafelki z liczbami (Value Boxes)
               fluidRow(
                 valueBoxOutput("box_patients"),
                 valueBoxOutput("box_genes"),
@@ -93,7 +83,7 @@ ui <- dashboardPage(
               )
       ),
       
-      # --- ZAKŁADKA 2: EDA (Eksploracja) ---
+      # --- ZAKŁADKA 2: EDA ---
       tabItem(tabName = "eda",
               h2("Eksploracyjna Analiza Danych"),
               fluidRow(
@@ -156,12 +146,10 @@ ui <- dashboardPage(
   )
 )
 
-# --- 3. DEFINICJA SERVERA (Logika Aplikacji) ---
+# --- 3. DEFINICJA SERVERA ---
 
 server <- function(input, output, session) {
-  
-  # --- INIT: Aktualizacja listy genów po starcie aplikacji ---
-  # To naprawia problem "pustej listy" w zakładce Biomarkery
+
   observe({
     updateSelectInput(session, "selected_gene",
                       choices = all_genes,
@@ -251,12 +239,10 @@ server <- function(input, output, session) {
   })
   
   # --- 5. Simulator Logic ---
-  
-  # Reakcja na przycisk "ZDIAGNOZUJ"
   observeEvent(input$btn_predict, {
     req(input$sim_patient_id)
     
-    # Pobieramy dane pacjenta
+    # dane pacjenta
     patient_data <- df[input$sim_patient_id, , drop = FALSE]
     
     # 1. Predykcja klasy
@@ -266,12 +252,11 @@ server <- function(input, output, session) {
     pred_prob <- predict(model_rf, newdata = patient_data, type = "prob")
     prob_df <- data.frame(Klasa = colnames(pred_prob), Prawdopodobienstwo = as.numeric(pred_prob[1,]))
     
-    # Renderowanie tekstu
     output$pred_class <- renderText({
       paste("Zdiagnozowano podtyp:", as.character(pred_class))
     })
     
-    # Renderowanie wykresu słupkowego prawdopodobieństw
+    # wykres słupkowy prawdopodobieństw
     output$plot_pred_prob <- renderPlotly({
       p <- ggplot(prob_df, aes(x = Klasa, y = Prawdopodobienstwo, fill = Klasa)) +
         geom_col() +
