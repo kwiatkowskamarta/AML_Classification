@@ -12,7 +12,7 @@ message(">>> ROZPOCZYNANIE POBIERANIA DANYCH DLA PROJEKTU TCGA-LAML <<<")
 # Utworzenie folderu na pliki tymczasowe
 if(!dir.exists("GDCdata")) dir.create("GDCdata")
 
-# --- 1. DANE KLINICZNE (Etykiety / Y) ---
+# --- 1. DANE KLINICZNE (etykiety) ---
 message("1. Pobieranie danych klinicznych.")
 
 query_clin <- GDCquery(
@@ -26,13 +26,13 @@ query_clin <- GDCquery(
 GDCdownload(query_clin, directory = "GDCdata")
 clinical_data <- GDCprepare(query_clin, directory = "GDCdata")
 
-# Główną tabela pacjentów
+# Główna tabela pacjentów
 clinical_patient <- clinical_data$clinical_patient_laml
 
 message(paste("   Pobrano dane kliniczne dla", nrow(clinical_patient), "pacjentów."))
 
-# --- 2. DANE RNA-SEQ (Cechy / X) ---
-message("2. Pobieranie danych RNA-seq (Gene Expression Quantification).")
+# --- 2. DANE RNA-SEQ (cechy) ---
+message("2. Pobieranie danych RNA-seq.")
 
 query_rna <- GDCquery(
   project = "TCGA-LAML",
@@ -41,7 +41,6 @@ query_rna <- GDCquery(
   workflow.type = "STAR - Counts" 
 )
 
-# Trybu 'api' i mniejsze paczek (chunks), aby uniknąć błędów sieciowych
 GDCdownload(query_rna, 
             method = "api", 
             files.per.chunk = 10,
