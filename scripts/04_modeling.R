@@ -1,6 +1,4 @@
-# SKRYPT 04: Modeling (Wersja Fail-Safe)
-# ------------------------------------------------------------------------------
-# Cel: Udowodnienie wyższości Random Forest.
+# SKRYPT 04: Modeling 
 # ------------------------------------------------------------------------------
 
 library(caret)
@@ -17,7 +15,7 @@ message(">>> START: ETAP MODELOWANIA <<<")
 load("results/models/Boruta_Results.RData")
 
 # 2. FILTRACJA I PODZIAŁ
-# Usuwamy klasy < 10 próbek
+# Usuniecie klasy < 10 próbek
 class_counts <- table(ml_data_final$Target)
 classes_to_keep <- names(class_counts)[class_counts >= 10]
 
@@ -75,10 +73,9 @@ model_svm_linear <- tryCatch({
     method = "svmLinear", 
     trControl = fit_control, 
     preProcess = c("center", "scale"),
-    tuneGrid = expand.grid(C = 1) # Sztywny parametr (ułatwia zbieżność)
+    tuneGrid = expand.grid(C = 1) 
   )
 }, error = function(e) { 
-  message("   ⚠️ OSTRZEŻENIE: SVM Linear nie zbiegł się (Błąd matematyczny). Pomijam go.")
   return(NULL) 
 })
 
@@ -87,7 +84,6 @@ if(!is.null(model_svm_linear)) message("   -> SVM: done!")
 message("--- TRENING ZAKOŃCZONY ---")
 
 # 4. ZESTAWIENIE WYNIKÓW
-# Tworzymy listę tylko z tych modeli, które się udały
 models_list <- list(Random_Forest = model_rf, kNN = model_knn)
 if(!is.null(model_svm_linear)) models_list$SVM <- model_svm_linear
 
@@ -109,7 +105,6 @@ evaluate_model <- function(model, name) {
   return(cm)
 }
 
-# Najważniejszy wynik!
 cm_rf <- evaluate_model(model_rf, "Random Forest")
 cm_knn <- evaluate_model(model_knn, "k-NN")
 if(!is.null(model_svm_linear)) cm_svm <- evaluate_model(model_svm_linear, "SVM")
