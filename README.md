@@ -23,9 +23,9 @@ Projekt jest w pełni reprodukowalny dzięki wykorzystaniu pakietu `renv`.
     ```
 2.  **Otwórz projekt:** Kliknij plik `AML_Classification.Rproj`.
 3.  **Zainstaluj biblioteki:**
-    Uruchom przygotowany skrypt, który skonfiguruje środowisko:
+    Uruchom komendę, która odtworzy środowisko z wymaganymi wersjami pakietów:
     ```r
-    source("install_dependencies.R")
+    renv::restore()
     ```
 4.  **Uruchom analizę:**
     ```r
